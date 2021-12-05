@@ -23,20 +23,33 @@ fn main() -> Result<(), Error>
     let r = Regex::new(r"(\d+),(\d+) -> (\d+),(\d+)").unwrap();
     let mut vent_lines: Vec<VentLine> = Vec::new();
 
+    // let mut cols: i32 = 0;
+    // let mut rows: i32 = 0;
+
     for l in buffered.lines()
     {
         let line = l?;
         let caps = r.captures(&line).unwrap();
-        vent_lines.push(VentLine {
+        let vl = VentLine {
             start_x: caps[1].parse::<i32>().unwrap(),
             start_y: caps[2].parse::<i32>().unwrap(),
             end_x: caps[3].parse::<i32>().unwrap(),
             end_y: caps[4].parse::<i32>().unwrap()
-        });
+        };
+
+        // cols = cmp::max(cols, cmp::max(vl.start_x, vl.end_x));
+        // rows = cmp::max(rows, cmp::max(vl.start_y, vl.end_y));
+
+        vent_lines.push(vl);
     }
 
-    let cols: i32 = vent_lines.as_slice().into_iter().map(|vl| vl.start_x ).chain(vent_lines.as_slice().into_iter().map(|vl| vl.end_x )).max().unwrap() + 1;
-    let rows: i32 = vent_lines.as_slice().into_iter().map(|vl| vl.start_y ).chain(vent_lines.as_slice().into_iter().map(|vl| vl.end_y )).max().unwrap() + 1;
+    // cols = cols + 1;
+    // rows = rows + 1;
+
+    // This is probably idiomatic, but has to be silly expensive
+    // If efficiency mattered better to just collect as the lines are read in
+    let cols: i32 = vent_lines.iter().map(|vl| vl.start_x ).chain(vent_lines.iter().map(|vl| vl.end_x )).max().unwrap() + 1;
+    let rows: i32 = vent_lines.iter().map(|vl| vl.start_y ).chain(vent_lines.iter().map(|vl| vl.end_y )).max().unwrap() + 1;
 
     let get_floor_index = | x: i32, y: i32 | (y * cols + x) as usize;
 
